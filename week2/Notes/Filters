@@ -1,0 +1,1249 @@
+XXXXX    
+Array.prototype.filter()
+The filter() method creates a new array with all elements that pass the test implemented by the provided function.
+
+
+Syntax
+// Arrow function
+filter((element) => { ... } )
+filter((element, index) => { ... } )
+filter((element, index, array) => { ... } )
+
+// Callback function
+filter(callbackFn)
+filter(callbackFn, thisArg)
+
+// Inline callback function
+filter(function callbackFn(element) { ... })
+filter(function callbackFn(element, index) { ... })
+filter(function callbackFn(element, index, array){ ... })
+filter(function callbackFn(element, index, array) { ... }, thisArg)
+Copy to Clipboard
+Parameters
+callbackFn
+Function is a predicate, to test each element of the array. Return a value that coerces to true to keep the element, or to false otherwise.
+
+It accepts three arguments:
+
+element
+The current element being processed in the array.
+indexOptional
+The index of the current element being processed in the array.
+arrayOptional
+The array filter was called upon.
+thisArgOptional
+Value to use as this when executing callbackFn.
+Return value
+A new array with the elements that pass the test. If no elements pass the test, an empty array will be returned.
+
+Description
+filter() calls a provided callbackFn function once for each element in an array, and constructs a new array of all the values for which callbackFn returns a value that coerces to true. callbackFn is invoked only for indexes of the array which have assigned values; it is not invoked for indexes which have been deleted or which have never been assigned values. Array elements which do not pass the callbackFn test are skipped, and are not included in the new array.
+
+callbackFn is invoked with three arguments:
+
+the value of the element
+the index of the element
+the Array object being traversed
+If a thisArg parameter is provided to filter, it will be used as the callback's this value. Otherwise, the value undefined will be used as its this value. The this value ultimately observable by callback is determined according to the usual rules for determining the this seen by a function.
+
+filter() does not mutate the array on which it is called.
+
+The range of elements processed by filter() is set before the first invocation of callbackFn. Elements which are appended to the array (from callbackFn) after the call to filter() begins will not be visited by callbackFn. If existing elements of the array are deleted in the same way they will not be visited.
+
+Polyfill
+filter() was added to the ECMA-262 standard in the 5th edition. Therefore, it may not be present in all implementations of the standard.
+
+You can work around this by inserting the following code at the beginning of your scripts, allowing use of filter() in ECMA-262 implementations which do not natively support it. This algorithm is exactly equivalent to the one specified in ECMA-262, 5th edition, assuming that fn.call evaluates to the original value of Function.prototype.bind(), and that Array.prototype.push() has its original value.
+
+if (!Array.prototype.filter){
+  Array.prototype.filter = function(func, thisArg) {
+    'use strict';
+    if ( ! ((typeof func === 'Function' || typeof func === 'function') && this) )
+        throw new TypeError();
+
+    var len = this.length >>> 0,
+        res = new Array(len), // preallocate array
+        t = this, c = 0, i = -1;
+
+    var kValue;
+    if (thisArg === undefined){
+      while (++i !== len){
+        // checks to see if the key was set
+        if (i in this){
+          kValue = t[i]; // in case t is changed in callback
+          if (func(t[i], i, t)){
+            res[c++] = kValue;
+          }
+        }
+      }
+    }
+    else{
+      while (++i !== len){
+        // checks to see if the key was set
+        if (i in this){
+          kValue = t[i];
+          if (func.call(thisArg, t[i], i, t)){
+            res[c++] = kValue;
+          }
+        }
+      }
+    }
+
+    res.length = c; // shrink down array to proper size
+    return res;
+  };
+}
+Copy to Clipboard
+Examples
+Filtering out all small values
+The following example uses filter() to create a filtered array that has all elements with values less than 10 removed.
+
+function isBigEnough(value) {
+  return value >= 10
+}
+
+let filtered = [12, 5, 8, 130, 44].filter(isBigEnough)
+// filtered is [12, 130, 44]
+Copy to Clipboard
+Find all prime numbers in an array
+The following example returns all prime numbers in the array:
+
+const array = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+
+function isPrime(num) {
+  for (let i = 2; num > i; i++) {
+    if (num % i == 0) {
+      return false;
+    }
+  }
+  return num > 1;
+}
+
+console.log(array.filter(isPrime)); // [2, 3, 5, 7, 11, 13]
+Copy to Clipboard
+Filtering invalid entries from JSON
+The following example uses filter() to create a filtered json of all elements with non-zero, numeric id.
+
+let arr = [
+  { id: 15 },
+  { id: -1 },
+  { id: 0 },
+  { id: 3 },
+  { id: 12.2 },
+  { },
+  { id: null },
+  { id: NaN },
+  { id: 'undefined' }
+]
+
+let invalidEntries = 0
+
+function filterByID(item) {
+  if (Number.isFinite(item.id) && item.id !== 0) {
+    return true
+  }
+  invalidEntries++
+  return false;
+}
+
+let arrByID = arr.filter(filterByID)
+
+console.log('Filtered Array\n', arrByID)
+// Filtered Array
+// [{ id: 15 }, { id: -1 }, { id: 3 }, { id: 12.2 }]
+
+console.log('Number of Invalid Entries = ', invalidEntries)
+// Number of Invalid Entries = 5
+Copy to Clipboard
+Searching in array
+Following example uses filter() to filter array content based on search criteria.
+
+let fruits = ['apple', 'banana', 'grapes', 'mango', 'orange']
+
+/**
+ * Filter array items based on search criteria (query)
+ */
+function filterItems(arr, query) {
+  return arr.filter(function(el) {
+      return el.toLowerCase().indexOf(query.toLowerCase()) !== -1
+  })
+}
+
+console.log(filterItems(fruits, 'ap'))  // ['apple', 'grapes']
+console.log(filterItems(fruits, 'an'))  // ['banana', 'mango', 'orange']
+Copy to Clipboard
+ES2015 Implementation
+const fruits = ['apple', 'banana', 'grapes', 'mango', 'orange']
+
+/**
+ * Filter array items based on search criteria (query)
+ */
+const filterItems = (arr, query) => {
+  return arr.filter(el => el.toLowerCase().indexOf(query.toLowerCase()) !== -1)
+}
+
+console.log(filterItems(fruits, 'ap'))  // ['apple', 'grapes']
+console.log(filterItems(fruits, 'an'))  // ['banana', 'mango', 'orange']
+
+Copy to Clipboard
+Affecting Initial Array (modifying, appending and deleting)
+The following examples tests the behavior of the filter method when the array is modified.
+
+// Modifying each words
+let words = ['spray', 'limit', 'exuberant', 'destruction','elite', 'present']
+
+const modifiedWords = words.filter( (word, index, arr) => {
+  arr[index+1] +=' extra'
+  return word.length < 6
+})
+
+console.log(modifiedWords)
+// Notice there are three words below length 6, but since they've been modified one is returned
+// ["spray"]
+
+// Appending new words
+words = ['spray', 'limit', 'exuberant', 'destruction','elite', 'present']
+const appendedWords = words.filter( (word, index, arr) => {
+  arr.push('new')
+  return word.length < 6
+})
+
+console.log(appendedWords)
+// Only three fits the condition even though the `words` itself now has a lot more words with character length less than 6
+// ["spray" ,"limit" ,"elite"]
+
+// Deleting words
+words = ['spray', 'limit', 'exuberant', 'destruction', 'elite', 'present']
+const deleteWords = words.filter( (word, index, arr) => {
+  arr.pop()
+  return word.length < 6
+})
+
+console.log(deleteWords)
+// Notice 'elite' is not even obtained as its been popped off `words` before filter can even get there
+// ["spray" ,"limit"]
+Copy to Clipboard
+Specifications
+Specification
+ECMAScript Language Specification (ECMAScript)
+# sec-array.prototype.filter
+Browser compatibility
+Report problems with this compatibility data on GitHub
+filter
+ChromeFull support1
+EdgeFull support12
+FirefoxFull support1.5
+Internet ExplorerFull support9
+OperaFull support9.5
+SafariFull support3
+WebView AndroidFull support37
+Chrome AndroidFull support18
+Firefox for AndroidFull support4
+Opera AndroidFull support10.1
+Safari on iOSFull support1
+Samsung InternetFull support1.0
+Node.jsFull support0.10.0
+Legend
+Full supportFull support
+See also
+A polyfill of Array.prototype.filter is available in core-js
+Array.prototype.forEach()
+Array.prototype.every()
+Array.prototype.some()
+Array.prototype.reduce()
+Array.prototype.find()
+Found a problem with this page?
+Edit on GitHub
+Source on GitHub
+Report a problem with this content on GitHub
+Want to fix the problem yourself? See our Contribution guide.
+Last modified: May 26, 2021, by MDN contributors
+
+Change your language
+Select your preferred language
+English (US)
+ Change language
+Related Topics
+Standard built-in objects
+Array
+Properties
+Array.prototype[@@unscopables]
+Array.prototype.length
+Methods
+Array.prototype[@@iterator]()
+get Array[@@species]
+Array.prototype.at()
+Array.prototype.concat()
+Array.prototype.copyWithin()
+Array.prototype.entries()
+Array.prototype.every()
+Array.prototype.fill()
+Array.prototype.filter()
+Array.prototype.find()
+Array.prototype.findIndex()
+Array.prototype.flat()
+Array.prototype.flatMap()
+Array.prototype.forEach()
+Array.from()
+Array.prototype.includes()
+Array.prototype.indexOf()
+Array.isArray()
+Array.prototype.join()
+Array.prototype.keys()
+Array.prototype.lastIndexOf()
+Array.prototype.map()
+Array.of()
+Array.prototype.pop()
+Array.prototype.push()
+Array.prototype.reduce()
+Array.prototype.reduceRight()
+Array.prototype.reverse()
+Array.prototype.shift()
+Array.prototype.slice()
+Array.prototype.some()
+Array.prototype.sort()
+Array.prototype.splice()
+Array.prototype.toLocaleString()
+Array.prototype.toSource()
+Array.prototype.toString()
+Array.prototype.unshift()
+Array.prototype.values()
+Inheritance:
+Function
+Properties
+Function.arguments
+Function.caller
+Function.displayName
+Function.length
+Function.name
+Methods
+Function.prototype.apply()
+Function.prototype.bind()
+Function.prototype.call()
+Function.prototype.toSource()
+Function.prototype.toString()
+Object
+Properties
+Object.prototype.constructor
+Object.prototype.__proto__
+Methods
+Object.prototype.__defineGetter__()
+Object.prototype.__defineSetter__()
+Object.prototype.__lookupGetter__()
+Object.prototype.__lookupSetter__()
+Object.prototype.hasOwnProperty()
+Object.prototype.isPrototypeOf()
+Object.prototype.propertyIsEnumerable()
+Object.setPrototypeOf()
+Object.prototype.toLocaleString()
+Object.prototype.toSource()
+Object.prototype.toString()
+Object.prototype.valueOf()
+
+(---------------------------------------------------------------------------)
+
+XXXXX
+Javascript data structure with map, reduce, filter, and ES6
+If you are a fan of javascript and use it daily, then you will love this 😃
+Deepak Gupta
+Deepak Gupta
+
+May 13, 2018·5 min read
+
+
+
+Javascript is a language that gives the freedom of writing code in any style, from imperative to declarative. Most programmers use imperative because either they are coming from OOPs background, maybe they love it, or they are not familiar with other styles. Before we dive into the declarative style which is functional programming (FP), let’s understand the differences between the two by looking at an example (if you already know the difference then you may skip few paragraphs)
+Imperative
+
+The imperative style is cool but imagine if there is a complex mathematics logic here then the size of code and the readability will suck. It increases the cognitive load when reading, and over time makes it easier to falter in reasoning and logic.
+Also, the main complexity of this code snippet derives from the fact that instead of telling the computer what we want it to do, we are instructing it on how to do it.
+Declarative
+
+Now, this looks pretty clean, shorter, expressive, concise code, less error-prone, easier to maintain, and easier to debug. We are telling the computer what we want it to do rather how to do it.
+The declarative approach is easily optimizable at the complier end and also has fewer side effects.
+Note: if you are concerned about the performance of above two and other javascript function (map, reduce, filter, find) then you should read here for small data set and can view here for large data set(100–1000000)
+Let’s start the real action with most used Javascript function for FP — .map().
+Map
+// definition 
+collection.map((currentValue, index) => {
+    // Return element for newArray
+});
+// example
+const arr = [1,2,3,4,5];
+const newArray = arr.map(i => i*10);
+// return a new array with all value as multiple of 10;
+The map works on an array and returns an array. The above code snippet works on a collection i.e an array and takes a callback with current iteration value, indexes as arguments, and returns a new array.
+Note: Maps are well suited for change/transforming whole array rather than breaking the flow for some conditions, Map suck’s performance wise, check out here but are easy to be used for small data sets.
+Reduce
+// definition 
+collection.reduce((accumulator, item, index) => {
+    // logic to perform to get accumulator as a return value
+}, initialValue for accumulator);
+// example
+const arr = [1,2,3,4,5];
+const total = arr.reduce((acc, item) => acc+= item, 0);
+// return a total as 15
+Reduce works on an array but can return anything you want it to return. As the name speaks for itself, it can be reduced to anything and can behave like map, find, filter or any other JavaScript array function. The above code snippet works on an array and reduces to compute the total value of items in the array.
+Explanation of the example above, On the, reduces first run, acc is assigned a 0 value and then acc+= item i.e acc = acc+item which will compute to0+1 which is 1. This 1 will be acc value for the next iteration and this continues until we are done with all array items.
+Find
+// definition 
+collection.find((item) => {
+    // return first element that satisfy the condition
+});
+// example
+const arr = [1,2,8,4,5];
+const value = arr.find(i => i%4 == 0);
+// return the first value i.e 8 
+Find works on an array and return the first element that satisfies the condition in function.
+Note: Easy, simple but not efficient on large data set, why ? look here
+Filter
+// definition 
+collection.filter((currentValue, index) => {
+    // logic to filter array on
+});
+// example
+const arr = [1,2,3,4,5];
+const newArray = arr.filter(i => i%2 == 0);
+// return a new array with value [2, 4]
+The filter works on an array to return an array for filtered items. That is, it will remove the items that return a false value and only return an array of truthy values that are returned from the function.
+Let's use them for some real-world scenarios + some ES6. (let's try some ARMD on the below object keys)
+Wondering what is ARMD its Add, Read, Modify, Delete, its cool to coin your own jargon 😄
+
+We will use users it as an array for further examples.
+1. ARMD — Adding a new element to users
+const newUser = {
+    id: 4,
+    name: "Denomer Crazy",
+    username: "crazy.1",
+    email: "deno@crazy.com",
+    phone: "",
+    website: "crazy.app",
+    password: "crazed_checker"
+};
+const newData = [...users, newUser]; // add element at last
+or 
+const newData = [newUser, ...users]; // add element at first
+or 
+const newData = users.concat(newUser) // the old way
+The use of ES6 spread operator makes it super easy to add elements to an array. We can use the spread operator to concat two different arrays, modify the shape of objects, or add dynamic key-value pairs, etc.
+const hobbies = ['chess', 'pool'];
+const newUsers = users.map(u => ({...u, hobbies}))
+// this will add hobbies to users array and return newUsers array
+2. ARMD — Get the email address, phone number, and website of users into new array
+const contactInfo = users.map(({email, website, phone}) => ({email, website, phone}));
+The use of ES6 of destructuring of object keys and map to get the contact info array for the user.
+3. ARMD — Find and replace the value for the key of objects
+const newUsers = users.map(u => u.id == 2? ({...u, name: 'te'}): u);
+// this will return newUsers with all user having name 'te'
+4. ARMD —Delete some key’s from the object
+Note: We will actually not delete the key but return a new object, if you want to delete the key use delete operator, here we are considering object immutability.
+To delete keys there are a lot of ways but we will look at the easiest, single lined. Let's try to delete the website from users.
+const newUsers = users.map({id, email, name, username, phone, password} => ({id, email, username, email, phone, password}));
+// will return an array with all keys other than website
+The above code seems to be practically difficult to code for big objects.
+const newUsers = users.map(u => Object.keys(u).reduce((newObj, key) => key != 'website' ? { ...newObj, [key]: u[key]} : newObj, {}));
+We map through the users and then on each user we do a reduce and form a new object (newObj) and then check for website key, if its a website we return the previously formed newObj, if not then we do a spread operator and add the required key to obj and finally, return newObj.
+
+(---------------------------------------------------------------------------)
+
+XXXXX
+The ES6 Guide
+ECMAScript is the standard upon which JavaScript is based, and it's often abbreviated to ES. Discover everything about ECMAScript, and the features added in ES6, aka ES2015.
+Published Sep 30, 2018, Last Updated Feb 04, 2019
+
+ads via Carbon
+Cybersecurity concerns are rising for businesses of all sizes. Secure your company data and devices today.
+ADS VIA CARBON
+Arrow Functions
+A new this scope
+Promises
+Generators
+let and const
+Classes
+Constructor
+Super
+Getters and setters
+Modules
+Importing modules
+Exporting modules
+Template Literals
+Default parameters
+The spread operator
+Destructuring assignments
+Enhanced Object Literals
+Simpler syntax to include variables
+Prototype
+super()
+Dynamic properties
+For-of loop
+Map and Set
+New String methods
+New Object methods
+ECMAScript 2015, also known as ES6, is a fundamental version of the ECMAScript standard.
+
+Published 4 years after the latest standard revision, ECMAScript 5.1, it also marked the switch from edition number to year number.
+
+So it should not be named as ES6 (although everyone calls it as such) but ES2015 instead.
+
+ES5 was 10 years in the making, from 1999 to 2009, and as such it was also a fundamental and very important revision of the language, but now much time has passed that it’s not worth discussing how pre-ES5 code worked.
+
+Since this long time passed between ES5.1 and ES6, the release is full of important new features and major changes in suggested best practices in developing JavaScript programs. To understand how fundamental ES2015 is, just keep in mind that with this version, the specification document went from 250 pages to ~600.
+
+This article describes the most important changes.
+
+Arrow Functions
+Arrow functions since their introduction changed how most JavaScript code looks (and works).
+
+Visually, it’s a simple and welcome change, from:
+
+const something = function something() {
+  //...
+}
+to
+
+const something = () => {
+  //...
+}
+And if the function body is a one-liner, just:
+
+const something = () => doSomething()
+Also, if you have a single parameter, you could write:
+
+const something = param => doSomething(param)
+This is not a breaking change, regular functions will continue to work just as before.
+
+A new this scope
+The this scope with arrow functions is inherited from the context.
+
+With regular functions this always refers to the nearest function, while with arrow functions this problem is removed, and you won’t need to write var that = this ever again.
+
+Promises
+Promises (check the full guide to promises) allow us to eliminate the famous “callback hell”, although they introduce a bit more complexity (which has been solved in ES2017 with async, a higher level construct).
+
+Promises have been used by JavaScript developers well before ES2015, with many different libraries implementations (e.g. jQuery, q, deferred.js, vow…), and the standard put a common ground across differences.
+
+By using promises you can rewrite this code
+
+setTimeout(function() {
+  console.log('I promised to run after 1s')
+  setTimeout(function() {
+    console.log('I promised to run after 2s')
+  }, 1000)
+}, 1000)
+as
+
+const wait = () => new Promise((resolve, reject) => {
+  setTimeout(resolve, 1000)
+})
+
+wait().then(() => {
+  console.log('I promised to run after 1s')
+  return wait()
+})
+.then(() => console.log('I promised to run after 2s'))
+Generators
+Generators are a special kind of function with the ability to pause itself, and resume later, allowing other code to run in the meantime.
+
+See the full JavaScript Generators Guide for a detailed explanation of the topic.
+
+let and const
+var is traditionally function scoped.
+
+let is a new variable declaration which is block scoped.
+
+This means that declaring let variables in a for loop, inside an if or in a plain block is not going to let that variable “escape” the block, while vars are hoisted up to the function definition.
+
+const is just like let, but immutable.
+
+In JavaScript moving forward, you’ll see little to no var declarations any more, just let and const.
+
+const in particular, maybe surprisingly, is very widely used nowadays with immutability being very popular.
+
+Classes
+Traditionally JavaScript is the only mainstream language with prototype-based inheritance. Programmers switching to JS from class-based language found it puzzling, but ES2015 introduced classes, which are just syntactic sugar over the inner working, but changed a lot how we build JavaScript programs.
+
+Now inheritance is very easy and resembles other object-oriented programming languages:
+
+class Person {
+  constructor(name) {
+    this.name = name
+  }
+
+  hello() {
+    return 'Hello, I am ' + this.name + '.'
+  }
+}
+
+class Actor extends Person {
+  hello() {
+    return super.hello() + ' I am an actor.'
+  }
+}
+
+var tomCruise = new Actor('Tom Cruise')
+tomCruise.hello()
+(the above program prints “Hello, I am Tom Cruise. I am an actor.”)
+
+Classes do not have explicit class variable declarations, but you must initialize any variable in the constructor.
+
+Constructor
+Classes have a special method called constructor which is called when a class is initialized via new.
+
+Super
+The parent class can be referenced using super().
+
+Getters and setters
+A getter for a property can be declared as
+
+class Person {
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`
+  }
+}
+Setters are written in the same way:
+
+class Person {
+  set age(years) {
+    this.theAge = years
+  }
+}
+Modules
+Before ES2015, there were at least 3 major modules competing standards, which fragmented the community:
+
+AMD
+RequireJS
+CommonJS
+ES2015 standardized these into a common format.
+
+Importing modules
+Importing is done via the import ... from ... construct:
+
+import * from 'mymodule'
+import React from 'react'
+import { React, Component } from 'react'
+import React as MyLibrary from 'react'
+Exporting modules
+You can write modules and export anything to other modules using the export keyword:
+
+export var number = 2
+export function bar() { /* ... */ }
+Template Literals
+Template literals are a new syntax to create strings:
+
+const aString = `A string`
+They provide a way to embed expressions into strings, effectively inserting the values, by using the ${a_variable} syntax:
+
+const joe = 'test'
+const string = `something ${joe}` //something test
+You can perform more complex expressions as well:
+
+const string = `something ${1 + 2 + 3}`
+const string2 = `something ${doSomething() ? 'x' : 'y' }`
+and strings can span over multiple lines:
+
+const string3 = `Hey
+this
+
+string
+is awesome!`
+Compare how we used to do multiline strings pre-ES2015:
+
+var str = 'One\n' +
+'Two\n' +
+'Three'
+See this post for an in-depth guide on template literals
+
+Default parameters
+Functions now support default parameters:
+
+const someFunction = function(index = 0, testing = true) { /* ... */ }
+someFunction()
+The spread operator
+You can expand an array, an object or a string using the spread operator ....
+
+Let’s start with an array example. Given
+
+const a = [1, 2, 3]
+you can create a new array using
+
+const b = [...a, 4, 5, 6]
+You can also create a copy of an array using
+
+const c = [...a]
+This works for objects as well. Clone an object with:
+
+const newObj = { ...oldObj }
+Using strings, the spread operator creates an array with each char in the string:
+
+const hey = 'hey'
+const arrayized = [...hey] // ['h', 'e', 'y']
+This operator has some pretty useful applications. The most important one is the ability to use an array as function argument in a very simple way:
+
+const f = (arg1, arg2) => {}
+const a = [1, 2]
+f(...a)
+(in the past you could do this using f.apply(null, a) but that’s not as nice and readable)
+
+Destructuring assignments
+Given an object, you can extract just some values and put them into named variables:
+
+const person = {
+  firstName: 'Tom',
+  lastName: 'Cruise',
+  actor: true,
+  age: 54, //made up
+}
+
+const {firstName: name, age} = person
+name and age contain the desired values.
+
+The syntax also works on arrays:
+
+const a = [1,2,3,4,5]
+const [first, second] = a
+This statement creates 3 new variables by getting the items with index 0, 1, 4 from the array a:
+
+const [first, second, , , fifth] = a
+Enhanced Object Literals
+In ES2015 Object Literals gained superpowers.
+
+Simpler syntax to include variables
+Instead of doing
+
+const something = 'y'
+const x = {
+  something: something
+}
+you can do
+
+const something = 'y'
+const x = {
+  something
+}
+Prototype
+A prototype can be specified with
+
+const anObject = { y: 'y' }
+const x = {
+  __proto__: anObject
+}
+super()
+const anObject = { y: 'y', test: () => 'zoo' }
+const x = {
+  __proto__: anObject,
+  test() {
+    return super.test() + 'x'
+  }
+}
+x.test() //zoox
+Dynamic properties
+const x = {
+  ['a' + '_' + 'b']: 'z'
+}
+x.a_b //z
+For-of loop
+ES5 back in 2009 introduced forEach() loops. While nice, they offered no way to break, like for loops always did.
+
+ES2015 introduced the for-of loop, which combines the conciseness of forEach with the ability to break:
+
+//iterate over the value
+for (const v of ['a', 'b', 'c']) {
+  console.log(v);
+}
+
+//get the index as well, using `entries()`
+for (const [i, v] of ['a', 'b', 'c'].entries()) {
+  console.log(i, v);
+}
+Map and Set
+Map and Set (and their respective garbage collected WeakMap and WeakSet) are the official implementations of two very popular data structures.
+
+New String methods
+Any string value got some new instance methods:
+
+repeat() repeats the strings for the specificed number of times: 'Ho'.repeat(3) //HoHoHo
+codePointAt() handles retrieving the Unicode code of characters that cannot be represented by a single 16-bit UTF-16 unit, but need 2 instead
+New Object methods
+ES6 introduced several static methods under the Object namespace:
+
+Object.is() determines if two values are the same value
+Object.assign() used to shallow copy an object
+Object.setPrototypeOf sets an object prototype
+
+(---------------------------------------------------------------------------)
+
+XXXXX
+JavaScript Array of Objects Tutorial – How to Create, Update, and Loop Through Objects Using JS Array Methods
+Ondrej Polesny
+Ondrej Polesny
+JavaScript Array of Objects Tutorial – How to Create, Update, and Loop Through Objects Using JS Array Methods
+On average I work with JSON data 18 times a week. And I still need to google for specific ways to manipulate them almost every time. What if there was an ultimate guide that could always give you the answer?
+
+In this article, I'll show you the basics of working with object arrays in JavaScript.
+
+If you ever worked with a JSON structure, you've worked with JavaScript objects. Quite literally. JSON stands for JavaScript Object Notation.
+
+Creating an object is as simple as this:
+
+{
+  "color": "purple",
+  "type": "minivan",
+  "registration": new Date('2012-02-03'),
+  "capacity": 7
+}
+This object represents a car. There can be many types and colors of cars, each object then represents a specific car.
+
+
+Now, most of the time you get data like this from an external service. But sometimes you need to create objects and their arrays manually. Like I did when I was creating this e-shop:
+
+
+Considering each category list item looks like this in HTML:
+
+
+I didn't want to have this code repeated 12 times, which would make it unmaintainable.
+
+Creating an array of objects
+But let's get back to cars. Let's take a look at this set of cars:
+
+
+We can represent it as an array this way:
+
+let cars = [
+  {
+    "color": "purple",
+    "type": "minivan",
+    "registration": new Date('2017-01-03'),
+    "capacity": 7
+  },
+  {
+    "color": "red",
+    "type": "station wagon",
+    "registration": new Date('2018-03-03'),
+    "capacity": 5
+  },
+  {
+    ...
+  },
+  ...
+]
+Arrays of objects don't stay the same all the time. We almost always need to manipulate them. So let's take a look at how we can add objects to an already existing array.
+
+Add a new object at the start - Array.unshift
+
+To add an object at the first position, use Array.unshift.
+
+let car = {
+  "color": "red",
+  "type": "cabrio",
+  "registration": new Date('2016-05-02'),
+  "capacity": 2
+}
+cars.unshift(car);
+Add a new object at the end - Array.push
+
+To add an object at the last position, use Array.push.
+
+let car = {
+ "color": "red",
+ "type": "cabrio",
+ "registration": new Date('2016-05-02'),
+ "capacity": 2
+}
+cars.push(car);
+Add a new object in the middle - Array.splice
+
+To add an object in the middle, use Array.splice. This function is very handy as it can also remove items. Watch out for its parameters:
+
+Array.splice(
+  {index where to start},
+  {how many items to remove},
+  {items to add}
+);
+So if we want to add the red Volkswagen Cabrio on the fifth position, we'd use:
+
+let car = {
+  "color": "red",
+  "type": "cabrio",
+  "registration": new Date('2016-05-02'),
+  "capacity": 2
+}
+cars.splice(4, 0, car);
+Looping through an array of objects
+Let me ask you a question here: Why do you want to loop through an array of objects? The reason I'm asking is that the looping is almost never the primary cause of what we want to achieve.
+
+JavaScript provides many functions that can solve your problem without actually implementing the logic in a general cycle. Let's take a look.
+
+Find an object in an array by its values - Array.find
+Let's say we want to find a car that is red. We can use the function Array.find.
+
+
+let car = cars.find(car => car.color === "red");
+This function returns the first matching element:
+
+console.log(car);
+// output:
+// {
+//   color: 'red',
+//   type: 'station wagon',
+//   registration: 'Sat Mar 03 2018 01:00:00 GMT+0100 (GMT+01:00)',
+//   capacity: 5
+// }
+It's also possible to search for multiple values:
+
+let car = cars.find(car => car.color === "red" && car.type === "cabrio");
+
+In that case we'll get the last car in the list.
+
+Get multiple items from an array that match a condition - Array.filter
+The Array.find function returns only one object. If we want to get all red cars, we need to use Array.filter.
+
+
+let redCars = cars.filter(car => car.color === "red");
+console.log(redCars);
+// output:
+// [
+//   {
+//     color: 'red',
+//     type: 'station wagon',
+//     registration: 'Sat Mar 03 2018 01:00:00 GMT+0100 (GMT+01:00)',
+//     capacity: 5
+//   },
+//   {
+//     color: 'red',
+//     type: 'cabrio',
+//     registration: 'Sat Mar 03 2012 01:00:00 GMT+0100 (GMT+01:00)',
+//     capacity: 2
+//   }
+// ]
+Transform objects of an array - Array.map
+This is something we need very often. Transform an array of objects into an array of different objects. That's a job for Array.map. Let's say we want to classify our cars into three groups based on their size.
+
+
+let sizes = cars.map(car => {
+  if (car.capacity <= 3){
+    return "small";
+  }
+  if (car.capacity <= 5){
+    return "medium";
+  }
+  return "large";
+});
+console.log(sizes);
+// output:
+// ['large','medium','medium', ..., 'small']
+It's also possible to create a new object if we need more values:
+
+let carsProperties = cars.map(car => {
+ let properties = {
+   "capacity": car.capacity,
+   "size": "large"
+ };
+ if (car.capacity <= 5){
+   properties['size'] = "medium";
+ }
+ if (car.capacity <= 3){
+   properties['size'] = "small";
+ }
+ return properties;
+});
+console.log(carsProperties);
+// output:
+// [
+//   { capacity: 7, size: 'large' },
+//   { capacity: 5, size: 'medium' },
+//   { capacity: 5, size: 'medium' },
+//   { capacity: 2, size: 'small' },
+//   ...
+// ]
+Add a property to every object of an array - Array.forEach
+But what if we want the car object too? In that case we can enhance the object for a new property size. This is a good use-case for the Array.forEach function.
+
+cars.forEach(car => {
+ car['size'] = "large";
+ if (car.capacity <= 5){
+   car['size'] = "medium";
+ }
+ if (car.capacity <= 3){
+   car['size'] = "small";
+ }
+});
+Sort an array by a property - Array.sort
+When we're done with transforming the objects, we usually need to sort them one way or another.
+
+Typically, the sorting is based on a value of a property every object has. We can use the Array.sort function, but we need to provide a function that defines the sorting mechanism.
+
+Let's say we want to sort the cars based on their capacity in descending order.
+
+
+let sortedCars = cars.sort((c1, c2) => (c1.capacity < c2.capacity) ? 1 : (c1.capacity > c2.capacity) ? -1 : 0);
+console.log(sortedCars);
+// output:
+// [
+//   {
+//     color: 'purple',
+//     type: 'minivan',
+//     registration: 'Wed Feb 01 2017 00:00:00 GMT+0100 (GMT+01:00)',
+//     capacity: 7
+//   },
+//   {
+//     color: 'red',
+//     type: 'station wagon',
+//     registration: 'Sat Mar 03 2018 01:00:00 GMT+0100 (GMT+01:00)',
+//     capacity: 5
+//   },
+//   ...
+// ]
+The Array.sort compares two objects and puts the first object in the second place if the result of the sorting function is positive. So you can look at the sorting function as if it was a question: Should the first object be placed in second place?
+
+
+Make sure to always add the case for zero when the compared value of both objects is the same to avoid unnecessary swaps.
+
+Checking if objects in array fulfill a condition - Array.every, Array.includes
+Array.every and Array.some come handy when we just need to check each object for a specific condition.
+
+Do we have a red cabrio in the list of cars? Are all cars capable of transporting at least 4 people? Or more web-centric: Is there a specific product in the shopping cart?
+
+cars.some(car => car.color === "red" && car.type === "cabrio");
+// output: true
+
+cars.every(car => car.capacity >= 4);
+// output: false
+You may remember the function Array.includes which is similar to Array.some, but works only for primitive types.
+
+Summary
+In this article, we went through the basic functions that help you create, manipulate, transform, and loop through arrays of objects. They should cover most cases you will stumble upon.
+
+If you have a use-case that requires more advanced functionality, take a look at this detailed guide to arrays or visit the W3 schools reference.
+
+(---------------------------------------------------------------------------)
+
+XXXXX
+Array.prototype.filter()
+The filter() method creates a new array with all elements that pass the test implemented by the provided function.
+
+
+Syntax
+// Arrow function
+filter((element) => { ... } )
+filter((element, index) => { ... } )
+filter((element, index, array) => { ... } )
+
+// Callback function
+filter(callbackFn)
+filter(callbackFn, thisArg)
+
+// Inline callback function
+filter(function callbackFn(element) { ... })
+filter(function callbackFn(element, index) { ... })
+filter(function callbackFn(element, index, array){ ... })
+filter(function callbackFn(element, index, array) { ... }, thisArg)
+Copy to Clipboard
+Parameters
+callbackFn
+Function is a predicate, to test each element of the array. Return a value that coerces to true to keep the element, or to false otherwise.
+
+It accepts three arguments:
+
+element
+The current element being processed in the array.
+indexOptional
+The index of the current element being processed in the array.
+arrayOptional
+The array filter was called upon.
+thisArgOptional
+Value to use as this when executing callbackFn.
+Return value
+A new array with the elements that pass the test. If no elements pass the test, an empty array will be returned.
+
+Description
+filter() calls a provided callbackFn function once for each element in an array, and constructs a new array of all the values for which callbackFn returns a value that coerces to true. callbackFn is invoked only for indexes of the array which have assigned values; it is not invoked for indexes which have been deleted or which have never been assigned values. Array elements which do not pass the callbackFn test are skipped, and are not included in the new array.
+
+callbackFn is invoked with three arguments:
+
+the value of the element
+the index of the element
+the Array object being traversed
+If a thisArg parameter is provided to filter, it will be used as the callback's this value. Otherwise, the value undefined will be used as its this value. The this value ultimately observable by callback is determined according to the usual rules for determining the this seen by a function.
+
+filter() does not mutate the array on which it is called.
+
+The range of elements processed by filter() is set before the first invocation of callbackFn. Elements which are appended to the array (from callbackFn) after the call to filter() begins will not be visited by callbackFn. If existing elements of the array are deleted in the same way they will not be visited.
+
+Polyfill
+filter() was added to the ECMA-262 standard in the 5th edition. Therefore, it may not be present in all implementations of the standard.
+
+You can work around this by inserting the following code at the beginning of your scripts, allowing use of filter() in ECMA-262 implementations which do not natively support it. This algorithm is exactly equivalent to the one specified in ECMA-262, 5th edition, assuming that fn.call evaluates to the original value of Function.prototype.bind(), and that Array.prototype.push() has its original value.
+
+if (!Array.prototype.filter){
+  Array.prototype.filter = function(func, thisArg) {
+    'use strict';
+    if ( ! ((typeof func === 'Function' || typeof func === 'function') && this) )
+        throw new TypeError();
+
+    var len = this.length >>> 0,
+        res = new Array(len), // preallocate array
+        t = this, c = 0, i = -1;
+
+    var kValue;
+    if (thisArg === undefined){
+      while (++i !== len){
+        // checks to see if the key was set
+        if (i in this){
+          kValue = t[i]; // in case t is changed in callback
+          if (func(t[i], i, t)){
+            res[c++] = kValue;
+          }
+        }
+      }
+    }
+    else{
+      while (++i !== len){
+        // checks to see if the key was set
+        if (i in this){
+          kValue = t[i];
+          if (func.call(thisArg, t[i], i, t)){
+            res[c++] = kValue;
+          }
+        }
+      }
+    }
+
+    res.length = c; // shrink down array to proper size
+    return res;
+  };
+}
+Copy to Clipboard
+Examples
+Filtering out all small values
+The following example uses filter() to create a filtered array that has all elements with values less than 10 removed.
+
+function isBigEnough(value) {
+  return value >= 10
+}
+
+let filtered = [12, 5, 8, 130, 44].filter(isBigEnough)
+// filtered is [12, 130, 44]
+Copy to Clipboard
+Find all prime numbers in an array
+The following example returns all prime numbers in the array:
+
+const array = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+
+function isPrime(num) {
+  for (let i = 2; num > i; i++) {
+    if (num % i == 0) {
+      return false;
+    }
+  }
+  return num > 1;
+}
+
+console.log(array.filter(isPrime)); // [2, 3, 5, 7, 11, 13]
+Copy to Clipboard
+Filtering invalid entries from JSON
+The following example uses filter() to create a filtered json of all elements with non-zero, numeric id.
+
+let arr = [
+  { id: 15 },
+  { id: -1 },
+  { id: 0 },
+  { id: 3 },
+  { id: 12.2 },
+  { },
+  { id: null },
+  { id: NaN },
+  { id: 'undefined' }
+]
+
+let invalidEntries = 0
+
+function filterByID(item) {
+  if (Number.isFinite(item.id) && item.id !== 0) {
+    return true
+  }
+  invalidEntries++
+  return false;
+}
+
+let arrByID = arr.filter(filterByID)
+
+console.log('Filtered Array\n', arrByID)
+// Filtered Array
+// [{ id: 15 }, { id: -1 }, { id: 3 }, { id: 12.2 }]
+
+console.log('Number of Invalid Entries = ', invalidEntries)
+// Number of Invalid Entries = 5
+Copy to Clipboard
+Searching in array
+Following example uses filter() to filter array content based on search criteria.
+
+let fruits = ['apple', 'banana', 'grapes', 'mango', 'orange']
+
+/**
+ * Filter array items based on search criteria (query)
+ */
+function filterItems(arr, query) {
+  return arr.filter(function(el) {
+      return el.toLowerCase().indexOf(query.toLowerCase()) !== -1
+  })
+}
+
+console.log(filterItems(fruits, 'ap'))  // ['apple', 'grapes']
+console.log(filterItems(fruits, 'an'))  // ['banana', 'mango', 'orange']
+Copy to Clipboard
+ES2015 Implementation
+const fruits = ['apple', 'banana', 'grapes', 'mango', 'orange']
+
+/**
+ * Filter array items based on search criteria (query)
+ */
+const filterItems = (arr, query) => {
+  return arr.filter(el => el.toLowerCase().indexOf(query.toLowerCase()) !== -1)
+}
+
+console.log(filterItems(fruits, 'ap'))  // ['apple', 'grapes']
+console.log(filterItems(fruits, 'an'))  // ['banana', 'mango', 'orange']
+
+Copy to Clipboard
+Affecting Initial Array (modifying, appending and deleting)
+The following examples tests the behavior of the filter method when the array is modified.
+
+// Modifying each words
+let words = ['spray', 'limit', 'exuberant', 'destruction','elite', 'present']
+
+const modifiedWords = words.filter( (word, index, arr) => {
+  arr[index+1] +=' extra'
+  return word.length < 6
+})
+
+console.log(modifiedWords)
+// Notice there are three words below length 6, but since they've been modified one is returned
+// ["spray"]
+
+// Appending new words
+words = ['spray', 'limit', 'exuberant', 'destruction','elite', 'present']
+const appendedWords = words.filter( (word, index, arr) => {
+  arr.push('new')
+  return word.length < 6
+})
+
+console.log(appendedWords)
+// Only three fits the condition even though the `words` itself now has a lot more words with character length less than 6
+// ["spray" ,"limit" ,"elite"]
+
+// Deleting words
+words = ['spray', 'limit', 'exuberant', 'destruction', 'elite', 'present']
+const deleteWords = words.filter( (word, index, arr) => {
+  arr.pop()
+  return word.length < 6
+})
+
+console.log(deleteWords)
+// Notice 'elite' is not even obtained as its been popped off `words` before filter can even get there
+// ["spray" ,"limit"]
+
+
+(---------------------------------------------------------------------------)
+
+XXXXX
+

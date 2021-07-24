@@ -22,10 +22,10 @@ var temp = (multiplier, divider) => { //block
 console.log(temp(3,6))//returns '17.333333333333332'
 
 //#5
-var clickButton = function('click', function() {
-    console.log(this)
-};
-console.log(clickButton())// could not figure out how to run this without errors..
+// var clickButton = function('click', function() {
+//     console.log(this)
+// };
+// console.log(clickButton())// could not figure out how to run this without errors..
 
 //#6
 var clickButton = function(){

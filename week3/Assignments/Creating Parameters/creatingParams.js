@@ -1,6 +1,7 @@
 /* 
   index.js
 */
+data = [
 $(document).ready(function() {
   
     "use strict";
@@ -44,11 +45,20 @@ $(document).ready(function() {
       return false;
     });
   
-    function displayResults(results) {
-     
-      resultList.text(JSON.stringify(results));
+    // function displayResults(results) {
+    //  var data = JSON.parse(results)
+    //   resultList.text(JSON.stringify(results));
   
   
-    }
-  
-  });
+    //}
+  })
+]
+
+//My changes
+  let item = document.getElementById('item')
+
+for (i=0; i < data.length; i++){
+    let changes = document.createElement('li')
+    changes.textContent = data[i]
+    item.appendChild(changes)
+}

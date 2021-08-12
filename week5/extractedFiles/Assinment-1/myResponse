@@ -1,0 +1,8 @@
+My thoughts:
+
+This is a very basic app used to pull information from an API and display it on the DOM. 
+I rate it 10/10 for functionality. I rate it 7/10 in terms of flow and aethetics.
+
+What I would change:
+In the dropdown list the options begin at index 1 rather than the natural 0, which creates two indices named "1", that bugs me a little bit if I am being honest. 
+Other than that I would fix spelling errors as necessary. 

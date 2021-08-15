@@ -1,3 +1,4 @@
+//Classes worksheet
 //#1
 // import { default as Person } from "./Person1"
 
@@ -156,3 +157,95 @@ index.js:99 undefined */
 
 // console.log( Person.firstName, Person.lastName)
 /*returns Mary Lutten */
+
+/************************************************************************/
+//Modules worksheet
+// CLO1:
+// import { Course, Session } from "./module1" 
+// console.log( "From Module 1", CourseId)
+// /*returns From Module 1 FSW113*/
+//console.log( "From Module 1", Session)
+/*returns From Module 1 02/02/2020 */
+
+// CLO2: 
+//import { Course as CourseId, Session } from "./module2" 
+//console.log( "From Module 2", CourseId)
+/*returns From Module 2 FSW113*/
+//console.log( "From Module 2", Session)
+/*returns From Module 2 02/02/2020*/
+
+// CLO3: 
+// import { Course as CourseId , Session } from "./module3" 
+// console.log( "From Module 3", CourseId)
+/*returns From Module 3 FSW113*/
+//console.log( "From Module 3", Session)
+/*returns From Module 3 02/02/2020*/
+
+// CLO4: 
+// import { Course as CourseId , Session } from "./module4" 
+
+// console.log( "From Module 4", CourseId)
+// console.log( "From Module 4", Session)
+/*returns Load Module 4 .... Start
+module4.js:9 Load Module 4 ..... End
+index.js:187 From Module 4 FSW113
+index.js:189 From Module 4 02/02/2020*/
+
+// CLO5: 
+// import {Course as CourseId } from "./module5" 
+// console.log( "From Module 5", CourseId)
+/*returns From Module 5 FSW113*/
+
+// CLO6: 
+// import { default as CourseId}  from "./module6" 
+
+// console.log( "From Module 6", CourseId)
+/*returns From Module 6 FSW113*/
+
+// CLO7: 
+// import { default as CourseName}  from "./module7" 
+// console.log( "From Module 7", CourseName)
+/*returns From Module 7 undefined*/
+
+// CLO8: 
+// import { default as CourseId, liveSession as Session}  from "./module8" 
+// console.log( "From Module 8", CourseId)
+// console.log( "From Module 8", Session)
+/*returns From Module 8 FSW113
+index.js:214 From Module 8 02/02/2020 */
+
+// CLO9: 
+// import *  as mod from "./module9" 
+// console.log( "From Module 9", mod.courseName)
+// console.log( "From Module 9", mod.liveSession)
+/*returns From Module 9 FSW113
+index.js:220 From Module 9 02/02/2020*/
+
+// CLO10: 
+// import{ Course as courseName, Session as liveSession} from "./module10" 
+// courseName ="FSW220"
+// console.log( "From Module 10", courseName)
+// console.log( "From Module 10", liveSession)
+/*returns Module 10 undefined*/
+
+// CLO11:
+// import *  as mod from "./module11" 
+
+// mod.courseName = "FSW220"
+// mod.liveSession = "Spring2020"
+
+// console.log( "From Module 11", mod.courseName)
+// console.log( "From Module 12", mod.liveSession)
+/*returns Uncaught TypeError: Cannot set property courseName of #<Object> which has only a getter*/
+
+// CLO12:
+// import *  as mod from "./module11" 
+
+// mod.courseName = "FSW113"
+// mod.liveSession = "Spring2020"
+
+// console.log( "From Module 12", mod.courseName)
+// console.log( "From Module 12", mod.liveSession)
+// console.log( "From Module 12", mod.combine( ))
+/*returns Uncaught TypeError: Cannot set property courseName of #<Object> which has only a getter*/
+
